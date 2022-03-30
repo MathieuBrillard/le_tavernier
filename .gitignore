@@ -1,0 +1,11 @@
+old/.env
+old/__pycache__/
+old/*.csv
+old/scans/
+old/ressources/board.png
+old/ffmpeg/
+old/*.jpg
+old/test.py
+old/emote.py
+old/*.ps1
+old/server/
