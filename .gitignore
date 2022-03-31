@@ -1,3 +1,4 @@
+## Old "Le Tavernier" ##
 old/.env
 old/__pycache__/
 old/*.csv
@@ -9,3 +10,8 @@ old/test.py
 old/emote.py
 old/*.ps1
 old/server/
+
+## MacGybot ##
+MacGybot/server/
+MacGybot/.env
+MacGybot/__pycache__/
