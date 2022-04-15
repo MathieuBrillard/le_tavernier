@@ -15,3 +15,10 @@ old/server/
 MacGybot/server/
 MacGybot/.env
 MacGybot/__pycache__/
+MacGybot/__init__.py
+
+## Le_Tavernier ##
+le_tavernier/.env
+le_tavernier/server/
+le_tavernier/__pycache__/
+le_tavernier/__init__.py

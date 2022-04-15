@@ -11,6 +11,18 @@ css = """
         body {background: white; font-family: "Lucida Console", monospace; font-weight: normal; font-style: normal;}
         table {border: none; cellpadding: 20; cellspacing: 2;}
         .month {border: none;}
+        ul li {
+            /* Text color */
+            color: black;
+            list-style-type: none;
+        }
+        ul li:before {
+            /* Unicode bullet symbol */
+            content: '\\2022 ';
+            /* Bullet color */
+            color: yellow;
+            padding-right: 0.5em;
+        }
         th, td {border-radius: 15%;}
         td {text-align: center;}
         .mon, .tue, .wed, .thu, .fri {background: #67e3e7;}
@@ -124,14 +136,14 @@ def day_cal(cal: str, current_day: int) -> str:
     return new_cal
     
 
-def gen_cal(format: str, file_name: str) -> None:
+def gen_cal(format: str, file_name: str, uid: str = None) -> None:
     """Function to generate an HTML Calendar and then transform it into an image (png).
 
     Args:
         `format`(str): should be `"day"` or `"week"` or `"month"` according to the
                         format needed.
-        `user` (hikari.Member, optional): Discord user in case we need to
-                        retrieve the scheduled calendar of this user. Defaults to None.
+        `file_name`(str): the name of the file which will be generated.
+        `uid` (str, optional): Discord user id to retrieve events info from db.
     """
     ## Check if the argument is correct ##
     if format != "day" and format != "week" and format != "month":
@@ -153,7 +165,7 @@ def gen_cal(format: str, file_name: str) -> None:
     ## Format calendar ##
     cal = format_cal(cal)
     cal = today_css(cal, dd)
-    ## Calendar image generation ##
+    # Calendar image generation ##
     hti = Html2Image(size=(535,455), output_path=f'{path}\\commands\\calendrier\\generated') # 515,455
     # name = str(dt.datetime.now().date())
     hti.screenshot(html_str=cal, css_str=css, save_as=file_name)
