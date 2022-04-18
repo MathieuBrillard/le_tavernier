@@ -31,17 +31,6 @@ def create_bot():
     
     return bot
 
-import sqlite3
-async def schedule_events():
-    connection = connection = sqlite3.connect("assets/db/calendar.db")
-    cursor = connection.cursor()
-    cursor.execute("""SELECT * FROM events JOIN u_to_e ON events.id = u_to_e.event_id JOIN users ON users.uid = u_to_e.uid
-        WHERE users.name = 'ippei'""")
-    #SELECT events.name, events.desc, events.date, events.time, events.server_id FROM events JOIN u_to_e ON events.id = u_to_e.event_id JOIN users ON users.uid = u_to_e.uid
-    #WHERE users.name = 'ippei';
-    result = cursor.fetchall()
-    print(result)
-
 
 if __name__ == "__main__":
     if os.name != "nt":
@@ -54,5 +43,4 @@ if __name__ == "__main__":
     
     # Create and run the bot.
     bot = create_bot()
-    bot.cre
     bot.run()
