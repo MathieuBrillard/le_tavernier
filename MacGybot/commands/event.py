@@ -7,7 +7,7 @@ import lightbulb
 from lightbulb import commands
 
 # The options the command will have.
-@lightbulb.option("due_date", "The due date of the event (like 01-01-2022).", str, required=True)
+@lightbulb.option("due_date", "The due date of the event (like 13-01-2022).", str, required=True)
 @lightbulb.option("due_time", "The due time of the event (like 08:00).", str, required=True)
 @lightbulb.option("name", "The name of the event.", str, required=True)
 @lightbulb.option("description", "The description of the event.", str, required=False)
@@ -52,15 +52,15 @@ async def event(ctx: lightbulb.context.Context) -> None:
     resp = await ctx.respond(content="event created.")
     msg = await resp.message()
     ## create task in the bot ##
-    event = ctx.bot.create_task(schedule_event(ctx, name, desc, due_date, due_time, serv_id, event_id, uid))
+    event = ctx.bot.create_task(schedule_event(ctx.bot, name, desc, due_date, due_time, serv_id, event_id, uid))
     await event
 
 
-async def schedule_event(ctx, name, desc, due_date, due_time, serv_id, event_id, uid):
+async def schedule_event(bot, name, desc, due_date, due_time, serv_id, event_id, uid):
     ## calculate the time to wait ##
     to_wait = datetime_diff(due_date, due_time)
     ## generate embed response ##
-    guild = await ctx.app.rest.fetch_guild(int(serv_id))
+    guild = await bot.rest.fetch_guild(int(serv_id))
     embed = (
         hikari.Embed(
             title=f"Your event **`{name}`** from server **`{guild}`**\n" + \
@@ -75,8 +75,8 @@ async def schedule_event(ctx, name, desc, due_date, due_time, serv_id, event_id,
     ## wait the time needed before sending the event message ##
     await asyncio.sleep(to_wait)
     ## send event message ##
-    channel = await ctx.app.rest.create_dm_channel(int(uid))
-    msg = await ctx.app.rest.create_message(channel=channel,embed=embed)
+    channel = await bot.rest.create_dm_channel(int(uid))
+    msg = await bot.rest.create_message(channel=channel,embed=embed)
     ## delete event in database ##
     # create db connection
     connection = sqlite3.connect("assets/db/calendar.db")
@@ -115,16 +115,36 @@ def datetime_diff(due_date: str, due_time: str) -> float:
     return diff.total_seconds()
 
 
-# async def schedule_events():
-#     connection = connection = sqlite3.connect("assets/db/calendar.db")
-#     cursor = connection.cursor()
-#     cursor.execute("""SELECT * FROM events JOIN u_to_e ON events.id = u_to_e.event_id JOIN users ON users.uid = u_to_e.uid
-#         WHERE users.name = 'ippei'""")
-#     #SELECT events.name, events.desc, events.date, events.time, events.server_id FROM events JOIN u_to_e ON events.id = u_to_e.event_id JOIN users ON users.uid = u_to_e.uid
-#     #WHERE users.name = 'ippei';
-#     result = cursor.fetchall()
-#     connection.close()
-#     print(result)
+async def schedule_events(bot) -> None:
+    """Function to schedule every events in the database, using the function
+    `schedule_event`.
+    
+    - Args:
+        `bot`(lightbulb.BotApp): The bot application.
+    
+    - Returns:
+        `None`.
+    """
+    ## retrieve events ##
+    connection = connection = sqlite3.connect("assets/db/calendar.db")
+    cursor = connection.cursor()
+    cursor.execute("""SELECT * FROM u_to_e;""")
+    datas = cursor.fetchall()
+    cursor.execute("""SELECT * FROM events;""")
+    events = cursor.fetchall()
+    connection.close()
+    ## schedule events ##
+    tasks = []
+    for event in events:
+        for data in datas:
+            if data[1] == event[0]:
+                uid = data[0]
+        task = bot.create_task(schedule_event(bot, event[1], event[2], event[3],
+            event[4], event[5], event[0], uid))
+        tasks += [task]
+    print("pending events scheduled.")
+    for tsk in tasks:
+        await tsk
 
 
 def load(bot: lightbulb.BotApp) -> None:

@@ -6,6 +6,7 @@ import __init__
 # discord.py libs
 import hikari
 import lightbulb
+import asyncio
 
 #TODO: commande de gestion du serveur (avec création de rôles et channel auto)
 #TODO: commande de gestion d'emploi du temps (prise de rdv, consultation du planning de la journée/semaine/mois)
@@ -17,19 +18,24 @@ import lightbulb
 ## Retrieving TOKEN ##
 load_dotenv()
 token = os.getenv("TOKEN")
+## Create the bot ##
+bot = lightbulb.BotApp(
+    token=token,
+    prefix="$",
+    case_insensitive_prefix_commands=True,
+    intents=hikari.Intents.ALL,
+    default_enabled_guilds=__init__.GUILD_ID,
+)
+## Loading extensions ##
+bot.load_extensions_from("./commands/")
 
-def create_bot():
-    bot = lightbulb.BotApp(
-        token=token,
-        prefix="$",
-        case_insensitive_prefix_commands=True,
-        intents=hikari.Intents.ALL,
-        default_enabled_guilds=__init__.GUILD_ID,
-    )
-    ## Loading extensions ##
-    bot.load_extensions_from("./commands/")
-    
-    return bot
+
+@bot.listen(hikari.StartedEvent)
+async def on_starting(_: hikari.StartedEvent) -> None:
+    # This event fires once, while the BotApp is starting.
+    from commands.event import schedule_events
+    print("scheduling events...")
+    await schedule_events(bot)
 
 
 if __name__ == "__main__":
@@ -41,6 +47,5 @@ if __name__ == "__main__":
 
         uvloop.install()
     
-    # Create and run the bot.
-    bot = create_bot()
+    # run the bot.
     bot.run()
