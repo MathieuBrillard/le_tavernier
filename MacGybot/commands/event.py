@@ -1,5 +1,4 @@
 import asyncio
-import os
 import datetime
 import sqlite3
 import hikari
@@ -7,10 +6,13 @@ import lightbulb
 from lightbulb import commands
 
 # The options the command will have.
-@lightbulb.option("due_date", "The due date of the event (like 13-01-2022).", str, required=True)
-@lightbulb.option("due_time", "The due time of the event (like 08:00).", str, required=True)
+@lightbulb.option("due_date", "The due date of the event (like 13-01-2022).",
+    str, required=True)
+@lightbulb.option("due_time", "The due time of the event (like 08:00).", str,
+    required=True)
 @lightbulb.option("name", "The name of the event.", str, required=True)
-@lightbulb.option("description", "The description of the event.", str, required=False)
+@lightbulb.option("description", "The description of the event.", str,
+    required=False)
 # Convert the function into a command
 @lightbulb.command("event", "Schedule an event.")
 # Define the types of command that this function will implement
@@ -39,7 +41,7 @@ async def event(ctx: lightbulb.context.Context) -> None:
             (uid, uname,))
     #TODO: check if the date and time format are correct
     result = cursor.execute("""INSERT INTO "events" (name, desc, date, time,
-        server_id) VALUES (?, ?, ?, ?, ?)""", (name, desc, due_date, due_time,
+        server_id) VALUES (?, ?, ?, ?, ?)""", (name, desc, due_date, due_time, 
         serv_id,))
     event_id = result.lastrowid
     cursor.execute("""INSERT INTO "u_to_e" (uid, event_id) VALUES (?, ?)""",
@@ -52,11 +54,13 @@ async def event(ctx: lightbulb.context.Context) -> None:
     resp = await ctx.respond(content="event created.")
     msg = await resp.message()
     ## create task in the bot ##
-    event = ctx.bot.create_task(schedule_event(ctx.bot, name, desc, due_date, due_time, serv_id, event_id, uid))
+    event = ctx.bot.create_task(schedule_event(ctx.bot, name, desc, due_date,
+        due_time, serv_id, event_id, uid))
     await event
 
 
-async def schedule_event(bot, name, desc, due_date, due_time, serv_id, event_id, uid):
+async def schedule_event(bot, name, desc, due_date, due_time, serv_id,
+    event_id, uid):
     ## calculate the time to wait ##
     to_wait = datetime_diff(due_date, due_time)
     ## generate embed response ##

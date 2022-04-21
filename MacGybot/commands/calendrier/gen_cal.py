@@ -1,4 +1,5 @@
 import os
+import sqlite3
 import commands.calendrier.errors as errors
 import datetime as dt
 import calendar
@@ -8,20 +9,29 @@ path = os.getcwd()
 
 c = calendar.HTMLCalendar(calendar.MONDAY)
 css = """
-        body {background: white; font-family: "Lucida Console", monospace; font-weight: normal; font-style: normal;}
-        table {border: none; cellpadding: 20; cellspacing: 2;}
-        .month {border: none;}
-        ul li {
+        body {
+            background: white;
+            font-family: "Lucida Console", monospace;
+            font-weight: normal;
+            font-style: normal;
+        }
+        table {
+            border: none;
+            cellpadding: 20;
+            cellspacing: 2;
+        }
+        .month {
+            border: none;
+        }
+        li {
             /* Text color */
-            color: black;
             list-style-type: none;
         }
-        ul li:before {
+        li:before {
             /* Unicode bullet symbol */
-            content: '\\2022 ';
+            content: '\\2022';
             /* Bullet color */
             color: yellow;
-            padding-right: 0.5em;
         }
         th, td {border-radius: 15%;}
         td {text-align: center;}
@@ -69,7 +79,7 @@ def today_css(cal: str, current_day: int) -> str:
 
 
 def format_cal(cal: str) -> str:
-    """Function to format and make the calendar look better.
+    """Function used to format and make the calendar look better.
 
     Args:
         `cal`(str): a calendar in HTML format.
@@ -87,7 +97,7 @@ def format_cal(cal: str) -> str:
 
 
 def week_cal(cal: str, current_day: int) -> str:
-    """Function to transform a HTML month calendar into a week calendar.
+    """Function used to transform a HTML month calendar into a week calendar.
 
     Args:
         `cal`(str): the html calendar to transform.
@@ -107,7 +117,7 @@ def week_cal(cal: str, current_day: int) -> str:
 
 
 def day_cal(cal: str, current_day: int) -> str:
-    """Function to transform a HTML month calendar into a day calendar.
+    """Function used to transform a HTML month calendar into a day calendar.
 
     Args:
         `cal`(str): the html calendar to transform.
@@ -134,16 +144,58 @@ def day_cal(cal: str, current_day: int) -> str:
     new_cal += f"<tr><td class=\"{day_name}\">{current_day}</td></tr>" + "\n"
     new_cal += "</table>"
     return new_cal
-    
 
-def gen_cal(format: str, file_name: str, uid: str = None) -> None:
+
+def user_events(cal: str, mm: int, uid: str) -> str:
+    """Function used to add user events to the final calendar. 
+
+    Args:
+        `cal`(str): the final calendar to edit.
+        `mm`(int): the current month.
+        `uid`(str): discord user id.
+
+    Returns:
+        `str`: the edited calendar.
+    """
+    ## retrieve events ##
+    connection = connection = sqlite3.connect("assets/db/calendar.db")
+    cursor = connection.cursor()
+    #TODO: simplifier la requêtes pour avoir seulement la date
+    cursor.execute("""
+        SELECT events.name, events.desc, events.date, events.time,
+        events.server_id FROM events JOIN u_to_e ON events.id = u_to_e.event_id
+        JOIN users ON users.uid = u_to_e.uid
+        WHERE users.uid = (?);""", (uid,))
+    events = cursor.fetchall()
+    connection.close()
+    ## affect the event to the correct day ##
+    day_checked = []
+    for event in events:
+        date = event[2]
+        month = int(date.split("-")[1])
+        if month == mm:
+            j = date.split("-")[0]
+            if j not in day_checked:
+                # check if the day is in the calendar
+                start_ind = cal.find(f">{j}")
+                if start_ind != -1:
+                    # add the dot to the desired day
+                    split = cal.split(f">{j}")
+                    new_cal = split[0] + f">{j}" + "<li></li>" + split[1]
+                    cal = new_cal
+                    # to prevent adding multiple dot to the same day
+                    day_checked += [j]
+    return cal
+
+
+def gen_cal(format: str, file_name: str, uid: str) -> None:
     """Function to generate an HTML Calendar and then transform it into an image (png).
 
     Args:
         `format`(str): should be `"day"` or `"week"` or `"month"` according to the
                         format needed.
         `file_name`(str): the name of the file which will be generated.
-        `uid` (str, optional): Discord user id to retrieve events info from db.
+        `uid` (str): Discord user id to retrieve events info from db.
     """
     ## Check if the argument is correct ##
     if format != "day" and format != "week" and format != "month":
@@ -165,7 +217,9 @@ def gen_cal(format: str, file_name: str, uid: str = None) -> None:
     ## Format calendar ##
     cal = format_cal(cal)
     cal = today_css(cal, dd)
+    cal = user_events(cal, mm, uid)
     # Calendar image generation ##
-    hti = Html2Image(size=(535,455), output_path=f'{path}\\commands\\calendrier\\generated') # 515,455
+    hti = Html2Image(size=(535,455), # 515,455
+        output_path=f'{path}\\commands\\calendrier\\generated')
     # name = str(dt.datetime.now().date())
     hti.screenshot(html_str=cal, css_str=css, save_as=file_name)

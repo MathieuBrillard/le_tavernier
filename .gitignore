@@ -16,6 +16,9 @@ MacGybot/server/
 MacGybot/.env
 MacGybot/__pycache__/
 MacGybot/__init__.py
+MacGybot/commands/calendrier/generated/
+MacGybot/commands/__pycache__/
+MacGybot/commands/calendrier/__pycache__/
 
 ## Le_Tavernier ##
 le_tavernier/.env

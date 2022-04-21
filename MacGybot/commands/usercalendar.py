@@ -23,7 +23,7 @@ async def usercalendar(ctx: lightbulb.context.Context) -> None:
         user_id = str(ctx.author.id)
         file_name = user_id + "_" + str(dt.datetime.now().date()) + "_0.png"
         path = os.getcwd()
-        gen_cal(format, file_name)
+        gen_cal(format, file_name, user_id)
     except IncorrectFormat as e: # handle arguments errors
         await ctx.respond(IncorrectFormat.__str__(e))
         return
@@ -96,7 +96,7 @@ async def handle_dropdown(ctx: lightbulb.context.Context, format: str, old_msg: 
     user_id = str(ctx.author.id)
     file_name = user_id + str(dt.datetime.now().date()) + "_1.png"
     path = os.getcwd()
-    gen_cal(format, file_name)
+    gen_cal(format, file_name, user_id)
     ## dropdown creation ##
     select_menu = (
         ctx.bot.rest.build_action_row()
