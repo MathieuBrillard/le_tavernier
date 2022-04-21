@@ -1,27 +1,21 @@
+## all ##
+**/__pycache__/
+**/.env
+**/__init__.py
+**/server/
+**/*.db
+**/*.csv
+**/*.ps1
+
 ## Old "Le Tavernier" ##
-old/.env
-old/__pycache__/
-old/*.csv
 old/scans/
 old/ressources/board.png
 old/ffmpeg/
 old/*.jpg
 old/test.py
 old/emote.py
-old/*.ps1
-old/server/
 
 ## MacGybot ##
-MacGybot/server/
-MacGybot/.env
-MacGybot/__pycache__/
-MacGybot/__init__.py
-MacGybot/commands/calendrier/generated/
-MacGybot/commands/__pycache__/
-MacGybot/commands/calendrier/__pycache__/
+MacGybot/commands/calendrier/generated/*
 
 ## Le_Tavernier ##
-le_tavernier/.env
-le_tavernier/server/
-le_tavernier/__pycache__/
-le_tavernier/__init__.py
