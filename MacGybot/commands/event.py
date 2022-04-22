@@ -1,6 +1,9 @@
+# time and background tasks
 import asyncio
 import datetime
+# sqlite lib
 import sqlite3
+# discord libs
 import hikari
 import lightbulb
 from lightbulb import commands

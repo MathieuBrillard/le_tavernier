@@ -9,9 +9,6 @@ import lightbulb
 import asyncio
 
 #TODO: commande de gestion du serveur (avec création de rôles et channel auto)
-#TODO: commande de gestion d'emploi du temps (prise de rdv, consultation du planning de la journée/semaine/mois)
-# +gestion des salles avec une base de données
-#TODO: commande de partage de Note (en lien avec l'appli ez_notes) => permet de généré une image (ou pdf) qui serait un rendu MarkDown
 #TODO: commande pour faire des sondages
 #TODO: commande pour faire de la communication (avec un embed, etc)
 
@@ -30,6 +27,8 @@ bot = lightbulb.BotApp(
 bot.load_extensions_from("./commands/")
 
 
+#TODO / FIX-ME: bot not stopping with ctrl+c if there is pending event(s)
+# you have to kill the shell
 @bot.listen(hikari.StartedEvent)
 async def on_starting(_: hikari.StartedEvent) -> None:
     # This event fires once, while the BotApp is starting.

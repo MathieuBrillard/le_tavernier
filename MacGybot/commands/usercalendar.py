@@ -1,9 +1,12 @@
+# date time and background tasks
 import asyncio
 import datetime as dt
+# manage generated files
 import os
+# errors and calendar generation
 from commands.calendrier.gen_cal import gen_cal
 from commands.calendrier.errors import IncorrectFormat
-
+# discord libs
 import hikari
 import lightbulb
 from lightbulb import commands
